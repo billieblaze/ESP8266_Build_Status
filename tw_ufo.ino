@@ -11,7 +11,7 @@
 #include <ArduinoJson.h>
 #define DEBUG_ESP_HTTP_SERVER true
 const char *ssid = "Teamworks";
-const char *password = "Whatever is necessary.";
+const char *password = "125121";
 //const char *ssid = "blazeone_gb";
 //const char *password = "52105210";
 
