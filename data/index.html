@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Teamworks UFO</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="dashboard.css">
+  </head>
+  <body ng-app="ufo">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">
+            <img src="logo.png" height="50" align="left">
+            <img src="ufo.png" height="50">
+          </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Help</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="/info">Info Endpoint</a></li>
+            <li><a href="/status">Status Endpoint</a></li>
+          </ul>
+
+          <hr>
+          <h2>Tools</h2>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://10.2.2.56:8080">Jenkins</a></li>
+            <li><a href="https://teamworks.atlassian.net">JIRA</a></li>
+            <li><a href="http://10.2.2.14:9090/">Prometheus</a></li>
+            <li><a href="http://10.2.2.14:3000/login">Grafana</a></li>
+            <li><a href="https://teamworks.atlassian.net/wiki/display/DEV/Application+Servers">Application Servers</a></li>
+          </ul>
+          <h2>Testing</h2>
+          <div  ng-controller="testController" class="text-center">
+             <div class="form-group">
+              <select  ng-model="test.environment" class="form-control">
+              <option value="">Select an Environment</option>
+                <optgroup label="Pipelines">
+                  <option value="SPRINT">SPRINT</option>
+                  <option value="RELEASE">RELEASE</option>
+                </optgroup>
+                <optgroup label="Environments">
+                  <option value="LATEST">LATEST</option>
+                  <option value="STAGING">STAGING</option>
+                  <option value="PRODUCTION">PRODUCTION</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <select  ng-model="test.status" class="form-control">
+                <option value="">Select a Status</option>
+                <optgroup label="Actions">
+                  <option value="CONNECTING">CONNECTING</option>
+                  <option value="BUILDING">BUILDING</option>
+                  <option value="DEPLOYING">DEPLOYING</option>
+                  <option value="TESTING">TESTING</option>
+                </optgroup>
+                <optgroup label="Statuses">
+                  <option value="STABLE">STABLE</option>
+                  <option value="UNSTABLE">UNSTABLE</option>
+                  <option value="FAILED">FAILED</option>
+                  <option value="ALARM">ALARM</option>
+                </optgroup>
+              </select>
+            </div>
+            <input type="button" ng-click="sendTest()" value="Send" class="btn btn-primary">
+          </div>
+          <!--
+          <hr>
+          <h2>Recent Events</h2>
+          <img src="http://10.0.0.23/test.svg" width="100%  ">
+          -->
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">UFO Dashboard</h1>
+          <div class="row placeholders" ng-controller="statusController">
+            <div ng-hide="!error" class="alert alert-danger" role="alert">{{error}}</div>
+            <div class="col-xs-12 col-sm-5 panel panel-default">
+              <h2>Build Pipelines</h2>
+              <div class="col-xs-6 col-sm-6 placeholder">
+                <status title="Sprint Pipeline" build="{{status.sprint}}" environment="sprint"></status>
+              </div>
+              <div class="col-xs-6 col-sm-6 placeholder">
+                <status title="Release Pipeline" build="{{status.release}}" environment="release"></status>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-1 placeholder">
+            </div>
+            <div class="col-xs-12 col-sm-6 panel panel-default">
+              <h2>Environments</h2>
+              <div class="col-xs-6 col-sm-4 placeholder">
+                <status title="Latest" build="{{status.latest}}" environment="latest"></status>
+              </div>
+              <div class="col-xs-6 col-sm-4 placeholder">
+                <status title="Staging" build="{{status.staging}}" environment="staging"></status>
+              </div>
+              <div class="col-xs-6 col-sm-4 placeholder">
+                <status title="Production" build="{{status.production}}" environment="production"></status>
+              </div>
+            </div>
+          </div>
+          <h2 class="sub-header">Environment Versions</h2>
+          <div class="table-responsive" ng-controller="versionController">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th width="10%">Environment</th>
+                  <th>Version Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Latest</td>
+                  <td>{{version.latest}}</td>
+                </tr>
+                <tr>
+                  <td>Staging</td>
+                  <td>{{version.staging}}</td>
+                </tr>
+                <tr>
+                  <td>Production</td>
+                  <td>{{version.production}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--
+          <h2 class="sub-header">Recent Status</h2>
+          <div class="table-responsive" ng-controller="logController">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1,001</td>
+                  <td>Lorem</td>
+                  <td>ipsum</td>
+                  <td>dolor</td>
+                  <td>sit</td>
+                </tr>
+                <tr>
+                  <td>1,002</td>
+                  <td>amet</td>
+                  <td>consectetur</td>
+                  <td>adipiscing</td>
+                  <td>elit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+-->
+
+        </div>
+      </div>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+
+    <script src="app.js"></script>
+  </body>
+</html>
