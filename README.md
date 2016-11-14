@@ -12,3 +12,18 @@ check the sketch for the exact pin mapping!
 basically, wire all the + / - back to a perfboard with the ESP on it..    all LED strips share CI, and have seperate DI connections to the uC board..
 
 the dynatrace ufo recommends a 2A charger for power, so i'm doing that too.
+
+## Installing 
+* Install Arduino IDE 1.6.7+ and in the Preferences dialog, type this board manager URL: http://arduino.esp8266.com/stable/package_esp8266com_index.json Arduino IDE preferences Make sure to restart the IDE afterwards.
+
+* Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu. Arduino board manager
+
+* Configure the microcontroller in IDE
+
+** Adafruit Huzzah ESP8266 board
+** 3MB SPIFFS
+** serial port that's connected to the FTDI serial cable
+** USBtinyISP as Programmer
+** 115200bps board config
+
+* Add Adafruit DotStar library and arduinoJSON libraries in the library manager
