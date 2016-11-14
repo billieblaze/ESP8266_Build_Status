@@ -1,7 +1,8 @@
 // todo : bring back NTP, or make API require timestamps be passed in
-// todo: persisten storage of statusData array!   
+// todo: show last 10 build results in ufo dashboard
+// todo: persistent storage of statusData array!   
 // todo: integrate dotstar led library
-
+// todo: fun mattermost integrations like /karma, or /party
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
