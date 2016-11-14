@@ -20,8 +20,8 @@ the dynatrace ufo recommends a 2A charger for power, so i'm doing that too.
 
 * Configure the microcontroller in IDE
 
-** Adafruit Huzzah ESP8266 board
-** 3MB SPIFFS
+** NodeMCU 0.9 for the board
+** 1MB SPIFFS
 ** serial port that's connected to the FTDI serial cable
 ** USBtinyISP as Programmer
 ** 115200bps board config
