@@ -1,4 +1,3 @@
-// todo : bring back NTP, or make API require timestamps be passed in
 // todo: show last 10 build results in ufo dashboard
 // todo: integrate dotstar led library
 // todo: fun mattermost integrations like /karma, or /party
@@ -38,7 +37,7 @@ const char* environmentList[] = {
   "LATEST"
 };
 
-
+char* statusLog[] = {}
 
 int address = 0;
 int statusData[5] = {0,0,0,0,0};
@@ -226,15 +225,16 @@ void handleStatus(){
         return server.send(500, "text/plain", "BAD REQUEST BODY");
     }
 
+    
     String environment = root["environment"];
     String buildStatus = root["status"];
-
+    String timeStamp = root["timestamp"];
     
     int environmentPointer = 0; 
     int statusPointer = 0; 
         
-    Serial.println( environment + " transitioned to " + buildStatus);
-    
+    Serial.println( environment + " transitioned to " + buildStatus + " at " + timeStamp);
+     
     int environmentLength = sizeof(environment);
     
     for (int i=0; i<environmentLength; i++) {
