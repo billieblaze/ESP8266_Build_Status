@@ -1,8 +1,8 @@
 // todo : bring back NTP, or make API require timestamps be passed in
 // todo: show last 10 build results in ufo dashboard
-// todo: persistent storage of statusData array!   
 // todo: integrate dotstar led library
 // todo: fun mattermost integrations like /karma, or /party
+
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
@@ -11,10 +11,10 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 #define DEBUG_ESP_HTTP_SERVER true
-const char *ssid = "Teamworks";
-const char *password = "125121";
-//const char *ssid = "blazeone_gb";
-//const char *password = "52105210";
+//const char *ssid = "Teamworks";
+//const char *password = "125121";
+const char *ssid = "blazeone_gb";
+const char *password = "52105210";
 
 #define DBG_OUTPUT_PORT Serial
 HTTPClient http;
@@ -41,7 +41,7 @@ const char* environmentList[] = {
 
 
 int address = 0;
-char* statusData[] = {"CONNECTING", "CONNECTING", "CONNECTING", "CONNECTING", "CONNECTING"};
+int statusData[5] = {0,0,0,0,0};
 
 
 ESP8266WebServer server ( 80 );
@@ -80,117 +80,7 @@ String getContentType(String filename){
   return "text/plain";
 }
 
-/*
-void loadEEProm(){
-  
-  byte len = EEPROM.read (0);
-  for (int i = 0; i < len; i++)
-  {
-    eeprom_read_string(i);
-  }
-}
 
-void writeEEProm(){
-  
-  byte len = EEPROM.read (0);
-  for (int i = 0; i < len; i++){
-    eeprom_write_string(i,"");
-  }
-}
-
-//
-// Writes a string starting at the specified address.
-// Returns true if the whole string is successfully written.
-// Returns false if the address of one or more bytes
-// fall outside the allowed range.
-// If false is returned, nothing gets written to the eeprom.
-//
-boolean eeprom_write_string(int addr, const char* string) {
-  // actual number of bytes to be written
-  int numBytes;
-
-  // we'll need to write the string contents
-  // plus the string terminator byte (0x00)
-  numBytes = strlen(string) + 1;
-
-  return eeprom_write_bytes(addr, (const byte*)string, numBytes);
-}
-
-
-//
-// Reads a string starting from the specified address.
-// Returns true if at least one byte (even only the
-// string terminator one) is read.
-// Returns false if the start address falls outside
-// or declare buffer size os zero.
-// the allowed range.
-// The reading might stop for several reasons:
-// - no more space in the provided buffer
-// - last eeprom address reached
-// - string terminator byte (0x00) encountered.
-// The last condition is what should normally occur.
-//
-boolean eeprom_read_string(int addr, char* buffer, int bufSize) {
-  // byte read from eeprom
-  byte ch;
-
-  // number of bytes read so far
-  int bytesRead;
-
-  // check start address
-  if (!eeprom_is_addr_ok(addr)) {
-    return false;
-  }
-
-  // how can we store bytes in an empty buffer ?
-  if (bufSize == 0) {
-    return false;
-  }
-
-  // is there is room for the string terminator only,
-  // no reason to go further
-  if (bufSize == 1) {
-    buffer[0] = 0;
-    return true;
-  }
-
-  // initialize byte counter
-  bytesRead = 0;
-
-  // read next byte from eeprom
-  ch = EEPROM.read(addr + bytesRead);
-
-  // store it into the user buffer
-  buffer[bytesRead] = ch;
-
-  // increment byte counter
-  bytesRead++;
-
-  // stop conditions:
-  // - the character just read is the string terminator one (0x00)
-  // - we have filled the user buffer
-  // - we have reached the last eeprom address
-  while ( (ch != 0x00) && (bytesRead < bufSize) && ((addr + bytesRead) <= EEPROM_MAX_ADDR) ) {
-    // if no stop condition is met, read the next byte from eeprom
-    ch = EEPROM.read(addr + bytesRead);
-
-    // store it into the user buffer
-    buffer[bytesRead] = ch;
-
-    // increment byte counter
-    bytesRead++;
-  }
-
-  // make sure the user buffer has a string terminator
-  // (0x00) as its last byte
-  if ((ch != 0x00) && (bytesRead >= 1)) {
-    buffer[bytesRead - 1] = 0;
-  }
-
-  return true;
-}
-
-*/
 
 bool handleFileRead(String path){
   DBG_OUTPUT_PORT.println("handleFileRead: " + path);
@@ -316,11 +206,11 @@ void handleStatus(){
   }
   
  if ( server.method() == HTTP_GET){ 
-      root["sprint"] = statusData[0];  
-      root["release"] = statusData[1];  
-      root["production"] = statusData[2];  
-      root["staging"] = statusData[3];  
-      root["latest"] = statusData[4];
+      root["sprint"] = statusList[statusData[0]];  
+      root["release"] =  statusList[statusData[1]];  
+      root["production"] =  statusList[statusData[2]];  
+      root["staging"] =  statusList[statusData[3]];  
+      root["latest"] =  statusList[statusData[4]];
         
   }
 
@@ -362,8 +252,9 @@ void handleStatus(){
       }
     }
      
-    statusData[environmentPointer] = statusList[statusPointer];
+    statusData[environmentPointer] = statusPointer;
     root["success"] = true;
+    updateEEPROM();
   }
   
   root.printTo(json);
@@ -371,13 +262,26 @@ void handleStatus(){
   
 }
 
+void updateEEPROM(){
+  
+   for ( int i = 0; i < sizeof(statusData); i++){
+    EEPROM.write(i, statusData[i]);
+   }
+
+    EEPROM.commit();
+}
   
 void setup ( void ) {
 
   pinMode ( led, OUTPUT );
   digitalWrite ( led, 0 );
-  Serial.begin ( 115200 );
+  Serial.begin ( 9600 );
+  EEPROM.begin(512);
 
+  for ( int i = 0; i < sizeof(statusData); i++){
+    statusData[i] = EEPROM.read(i);
+  }
+  
   // mount the filesystem
   SPIFFS.begin();
   {
